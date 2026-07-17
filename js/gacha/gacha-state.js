@@ -22,6 +22,6 @@ export const GACHA = {
     pv: 1, mbg: 1,
   },
   speechLines: [
-    '明けましておめでとう',
+    '新年あけまして\nおめでとうございます！',
   ],
 };

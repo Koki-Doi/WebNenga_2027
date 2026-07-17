@@ -60,7 +60,7 @@ function buildTextures() {
       // メダリオン間の小ダイヤ
       dia(w / 2, cy + 128, 24, 5, '#caa040');
     }
-  }, { repeat: [1, 3] });
+  }, { repeat: [1, 4] });
 
   TEX.wall = ct(512, 512, (g, w, h) => {
     g.fillStyle = '#5e0d14'; g.fillRect(0, 0, w, h);
@@ -109,7 +109,7 @@ function buildTextures() {
     g.beginPath(); g.arc(w / 2, h / 2, 12, 0, TAU); g.fill();
     g.fillStyle = radialGrad(g, w / 2, h / 2, 52, [[0, 'rgba(255,210,130,.3)'], [1, 'rgba(255,210,130,0)']]);
     g.beginPath(); g.arc(w / 2, h / 2, 52, 0, TAU); g.fill();
-  }, { repeat: [4, 8] });
+  }, { repeat: [4, 12] });
 
   // 扉パネル: 巨大馬蹄が左右パネルの継ぎ目をまたぐ（sx=-1 左 / +1 右）
   const doorPanelTex = (sx) => ct(512, 1024, (g, w, h) => {
@@ -274,12 +274,12 @@ function buildTextures() {
     g.fillStyle = grd; g.fill();
     g.strokeStyle = '#ffe9b0'; g.lineWidth = 14; g.stroke();
     // 白文字（うっすら金の縁取り）
-    g.strokeStyle = '#e8a83c'; g.lineWidth = 10;
-    g.font = 'italic 900 118px Georgia, serif';
+    g.strokeStyle = '#e8a83c'; g.lineWidth = 12;
+    g.font = 'italic 900 168px Georgia, serif';
     g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.strokeText('Eclipse first, the rest nowhere.', w / 2, h * .56);
+    g.strokeText('Happy New Year', w / 2, h * .56);
     g.fillStyle = '#fff8ee';
-    g.fillText('Eclipse first, the rest nowhere.', w / 2, h * .56);
+    g.fillText('Happy New Year', w / 2, h * .56);
     // 文字上のきらめき
     g.fillStyle = 'rgba(255,255,255,.9)';
     for (let i = 0; i < 26; i++) {
@@ -360,12 +360,22 @@ function buildTextures() {
   const drawCrowd = (g, w, h) => {
     // ベースは原作スタンドの赤茶系（参考t13.0の段色）
     g.fillStyle = '#5e4a4a'; g.fillRect(0, 0, w, h);
-    for (let i = 0; i < 9000; i++) {
-      g.fillStyle = `hsl(${Math.random() * 360}, ${24 + Math.random() * 44}%, ${50 + Math.random() * 34}%)`;
-      g.fillRect(Math.random() * w, Math.random() * h, 2, 3);
+    // 段の陰影（横帯）で客席の列を出す
+    for (let y = 0; y < h; y += 8) {
+      g.fillStyle = `rgba(28,20,24,${(y / 8) % 2 ? .18 : .06})`;
+      g.fillRect(0, y + 5, w, 3);
+    }
+    // 観客は服(胴)+頭の2トーンで、列に沿わせて描く（ただのノイズにしない）
+    for (let i = 0; i < 5200; i++) {
+      const x = Math.random() * w;
+      const y = Math.floor(Math.random() * (h / 8)) * 8 + Math.random() * 2.5;
+      g.fillStyle = `hsl(${Math.random() * 360}, ${30 + Math.random() * 45}%, ${36 + Math.random() * 40}%)`;
+      g.fillRect(x, y + 2, 3, 4);
+      g.fillStyle = `hsl(${18 + Math.random() * 20}, ${36 + Math.random() * 26}%, ${50 + Math.random() * 28}%)`;
+      g.fillRect(x + .5, y, 2, 2);
     }
     // うっすら白いヘイズ
-    g.fillStyle = 'rgba(255,255,255,.1)'; g.fillRect(0, 0, w, h);
+    g.fillStyle = 'rgba(255,255,255,.08)'; g.fillRect(0, 0, w, h);
   };
   TEX.crowd = ct(1024, 256, drawCrowd, { repeat: [10, 1] });
   // スロープ用は縦横の通路ラインを足す（リピートで段ごとの通路に見える）
@@ -375,6 +385,33 @@ function buildTextures() {
     for (let x = 96; x < w; x += 256) g.fillRect(x, 0, 10, h);
     g.fillRect(0, h - 14, w, 14);
   }, { repeat: [12, 5] });
+
+  // スタンド腰壁の広告ボード列（架空スポンサー風の色板 + 白抜きダミーロゴ）
+  TEX.adboards = ct(1024, 128, (g, w, h) => {
+    g.fillStyle = '#f2f5f7'; g.fillRect(0, 0, w, h);
+    const cols = ['#2f7fd0', '#e05a8a', '#3aa860', '#e8a23a', '#7058c8', '#d84f3f', '#2f9fb8', '#c8b23a'];
+    for (let i = 0; i < 8; i++) {
+      const x = i * 128;
+      g.fillStyle = cols[i];
+      g.fillRect(x + 7, 12, 114, h - 24);
+      g.fillStyle = 'rgba(255,255,255,.92)';
+      g.fillRect(x + 22, h / 2 - 7, 64, 14);
+      g.beginPath(); g.arc(x + 101, h / 2, 9, 0, TAU); g.fill();
+    }
+    g.fillStyle = 'rgba(0,0,0,.14)'; g.fillRect(0, h - 9, w, 9);
+  }, { repeat: [14, 1] });
+
+  // 屋根縁の三角ペナント列（透過1枚板に貼る）
+  TEX.pennants = ct(512, 64, (g, w, h) => {
+    const cols = ['#ff8ab0', '#ffd35e', '#7fd4ff', '#9de08a', '#c9a2ff', '#ff9a6a', '#8ae0c8', '#f0e08a'];
+    g.strokeStyle = 'rgba(255,255,255,.95)'; g.lineWidth = 4;
+    g.beginPath(); g.moveTo(0, 4); g.lineTo(w, 4); g.stroke();
+    for (let i = 0; i < 8; i++) {
+      const x = i * 64;
+      g.fillStyle = cols[i];
+      g.beginPath(); g.moveTo(x + 5, 5); g.lineTo(x + 59, 5); g.lineTo(x + 32, 58); g.closePath(); g.fill();
+    }
+  }, { repeat: [26, 1] });
 
   TEX.sky = ct(512, 1024, (g, w, h) => {
     const grd = g.createLinearGradient(0, 0, 0, h);
@@ -596,32 +633,86 @@ class Sparkles {
 // ---------- 廊下 ----------
 function buildCorridor() {
   const g = new THREE.Group();
-  // 床・壁・天井（原作の「見上げる巨大扉」に合わせ天井5.5m）
-  g.add((() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(8, 18), M.lamb({ map: TEX.carpet })); m.rotation.x = -Math.PI / 2; m.position.z = -1; return m; })());
+  // 床・壁・天井（原作の「見上げる巨大扉」に合わせ天井5.5m / 疾走感を出すため奥行き26mのロング廊下）
+  g.add((() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(8, 26), M.lamb({ map: TEX.carpet })); m.rotation.x = -Math.PI / 2; m.position.z = -2; return m; })());
   for (const sx of [-1, 1]) {
-    const wall = new THREE.Mesh(new THREE.PlaneGeometry(18, 5.5), M.lamb({ map: TEX.wall }));
-    wall.position.set(sx * 4.03, 2.75, -1);
+    const wall = new THREE.Mesh(new THREE.PlaneGeometry(26, 5.5), M.lamb({ map: TEX.wall }));
+    wall.position.set(sx * 4.03, 2.75, -2);
     wall.rotation.y = -sx * Math.PI / 2;
     g.add(wall);
   }
-  g.add((() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(8, 18), M.lamb({ map: TEX.ceiling })); m.rotation.x = Math.PI / 2; m.position.set(0, 5.52, -1); return m; })());
-  // 金柱
+  g.add((() => { const m = new THREE.Mesh(new THREE.PlaneGeometry(8, 26), M.lamb({ map: TEX.ceiling })); m.rotation.x = Math.PI / 2; m.position.set(0, 5.52, -2); return m; })());
+  // 金柱（柱頭・柱脚付き）
   const colMat = M.lamb({ color: 0xc9952f, emissive: 0x331f05 });
-  for (let z = 2; z >= -6; z -= 2.6) for (const sx of [-1, 1]) {
+  for (let z = 2; z >= -12; z -= 2.6) for (const sx of [-1, 1]) {
     const c = new THREE.Mesh(new THREE.CylinderGeometry(.1, .13, 5.5, 10), colMat);
     c.position.set(sx * 3.88, 2.75, z);
     g.add(c);
+    const cap = new THREE.Mesh(new THREE.CylinderGeometry(.17, .11, .16, 10), colMat);
+    cap.position.set(sx * 3.88, 5.4, z);
+    g.add(cap);
+    const base = new THREE.Mesh(new THREE.CylinderGeometry(.14, .2, .2, 10), colMat);
+    base.position.set(sx * 3.88, .1, z);
+    g.add(base);
   }
-  // シャンデリア光
-  for (let z = 1; z >= -5; z -= 3) {
+  // シャンデリア（金環 + 灯玉 + 光ボケ）
+  for (let z = 1; z >= -11; z -= 3) {
     const s = sprite(TEX.bokeh, 0xffd9a0, 1.6, .5);
     s.position.set(0, 5.0, z);
     g.add(s);
+    const ring = new THREE.Mesh(new THREE.TorusGeometry(.3, .035, 8, 18), colMat);
+    ring.rotation.x = Math.PI / 2;
+    ring.position.set(0, 4.82, z);
+    g.add(ring);
+    const stem = new THREE.Mesh(new THREE.CylinderGeometry(.015, .015, .7, 6), colMat);
+    stem.position.set(0, 5.17, z);
+    g.add(stem);
+    for (let k = 0; k < 6; k++) {
+      const a = (k / 6) * TAU;
+      const bulb = new THREE.Mesh(new THREE.SphereGeometry(.042, 8, 6), M.basic({ color: 0xffe2b0, fog: false }));
+      bulb.position.set(Math.cos(a) * .3, 4.88, z + Math.sin(a) * .3);
+      g.add(bulb);
+    }
+  }
+  // 壁面の燭台（柱間に暖色の灯りのリズム）
+  for (const sx of [-1, 1]) for (const z of [.7, -1.9, -4.5, -7.1, -9.7]) {
+    g.add(box(.06, .3, .1, colMat, sx * 3.92, 3.5, z));
+    const cup = new THREE.Mesh(new THREE.CylinderGeometry(.07, .035, .12, 8), colMat);
+    cup.position.set(sx * 3.8, 3.62, z);
+    g.add(cup);
+    const gl = sprite(TEX.bokeh, 0xffc27a, .7, .5);
+    gl.position.set(sx * 3.74, 3.76, z);
+    g.add(gl);
+  }
+  // 赤ロープのスタンション（カーペット両脇の誘導ロープ）
+  const ropeM = M.lamb({ color: 0xa01824, emissive: 0x2a0408 });
+  for (const sx of [-1, 1]) {
+    const xs = sx * 2.6;
+    const zs = [1.7, -.6, -2.9, -5.2, -7.5, -9.8];
+    for (const z of zs) {
+      const post = new THREE.Mesh(new THREE.CylinderGeometry(.03, .042, .95, 10), colMat);
+      post.position.set(xs, .475, z);
+      g.add(post);
+      const ball = new THREE.Mesh(new THREE.SphereGeometry(.055, 10, 8), colMat);
+      ball.position.set(xs, .98, z);
+      g.add(ball);
+      const foot = new THREE.Mesh(new THREE.CylinderGeometry(.12, .14, .05, 10), colMat);
+      foot.position.set(xs, .025, z);
+      g.add(foot);
+    }
+    for (let i = 0; i < zs.length - 1; i++) {
+      const curve = new THREE.QuadraticBezierCurve3(
+        new THREE.Vector3(xs, .9, zs[i]),
+        new THREE.Vector3(xs, .66, (zs[i] + zs[i + 1]) / 2),
+        new THREE.Vector3(xs, .9, zs[i + 1]),
+      );
+      g.add(new THREE.Mesh(new THREE.TubeGeometry(curve, 10, .028, 6), ropeM));
+    }
   }
 
-  // ---- 扉一式（4.6m の巨大両開き / 外側ヒンジで実際に開く） ----
+  // ---- 扉一式（4.6m の巨大両開き / 外側ヒンジで手前へ開く） ----
   const door = new THREE.Group();
-  door.position.set(0, 0, -7);
+  door.position.set(0, 0, -13);
   const mkPanel = (sx) => {
     const piv = new THREE.Group();
     piv.position.set(sx * 1.92, 0, 0);         // 外側エッジ＝ヒンジ
@@ -643,6 +734,20 @@ function buildCorridor() {
       piv.add(knob);
       piv.add(box(.06, .06, .17, hMat, hx, 2.05 + dy * .85, .14));
     }
+    // ヒンジ金具（吊元側 / 手前開きなので正面に露出）
+    for (const hy of [.75, 2.3, 3.85]) {
+      piv.add(box(.055, .36, .07, hMat, -sx * .035, hy, .05));
+      piv.add(box(.11, .1, .1, hMat, -sx * .04, hy, .01));
+    }
+    // キックプレート（足元の金帯）
+    piv.add(box(1.68, .4, .03, M.lamb({ color: 0xc9952f, emissive: 0x402a08 }), -sx * .95, .36, .09));
+    // 上縁の飾り鋲（立体）
+    const studM = M.lamb({ color: 0xf3cf6f, emissive: 0x553808 });
+    for (const bx of [.2, .64, 1.08, 1.52]) {
+      const st = new THREE.Mesh(new THREE.SphereGeometry(.028, 8, 8), studM);
+      st.position.set(-sx * bx, 4.42, .085);
+      piv.add(st);
+    }
     door.add(piv);
     return piv;
   };
@@ -658,6 +763,33 @@ function buildCorridor() {
   door.add(box(.26, 5.35, .34, frameMat, 2.08, 2.675, 0));
   door.add(box(4.6, .3, .36, frameMat, 0, 4.92, 0));
   door.add(box(4.7, .2, .55, frameMat, 0, .08, .1));
+  // 枠柱の柱頭・柱脚と、アーチ中央のキーストーン飾り
+  for (const sx of [-1, 1]) {
+    door.add(box(.4, .18, .46, frameMat, sx * 2.08, 5.06, 0));
+    door.add(box(.42, .22, .5, frameMat, sx * 2.08, .11, 0));
+  }
+  door.add(box(.36, .5, .12, frameMat, 0, 4.98, .06));
+  const keyOrb = new THREE.Mesh(new THREE.SphereGeometry(.1, 10, 8), M.lamb({ color: 0xf3cf6f, emissive: 0x553808 }));
+  keyOrb.position.set(0, 5.16, .12);
+  door.add(keyOrb);
+  // 扉脇のランタン（金具 + 火屋 + 暖色の灯り）
+  for (const sx of [-1, 1]) {
+    const lg = new THREE.Group();
+    lg.position.set(sx * 2.42, 3.3, .3);
+    lg.add(box(.32, .05, .05, frameMat, -sx * .14, .16, -.14));
+    const body = new THREE.Mesh(new THREE.CylinderGeometry(.075, .1, .3, 8), M.lamb({ color: 0x9a7226, emissive: 0x3a2606 }));
+    lg.add(body);
+    const cap = new THREE.Mesh(new THREE.ConeGeometry(.115, .13, 8), frameMat);
+    cap.position.y = .21;
+    lg.add(cap);
+    const fin = new THREE.Mesh(new THREE.SphereGeometry(.035, 8, 6), frameMat);
+    fin.position.y = -.19;
+    lg.add(fin);
+    const gl = sprite(TEX.bokeh, 0xffc887, .85, .55);
+    gl.position.set(0, .02, .12);
+    lg.add(gl);
+    door.add(lg);
+  }
   // 扉の奥の白い光の間（開いた時に見える）
   const innerGlow = new THREE.Mesh(new THREE.PlaneGeometry(4.0, 5.5), M.add({ color: new THREE.Color(2.6, 2.3, 1.6), opacity: 0 }));
   innerGlow.position.set(0, 2.6, -.4);
@@ -670,7 +802,7 @@ function buildCorridor() {
     M.add({ color: 0xffc46a, opacity: 0 })
   );
   // 描画した巨大馬蹄（パネル中心2.3 + テクスチャ比0.1×4.6 → y≈2.76, r≈0.78×1.9）に重ねる
-  shoe.position.set(0, 2.76, -6.9);
+  shoe.position.set(0, 2.76, -12.9);
   // arc は +X 起点で反時計回り: 残り 0.28π の切れ目を真下(270°)へ
   shoe.rotation.z = -Math.PI * .36;
   g.add(shoe);
@@ -678,7 +810,7 @@ function buildCorridor() {
 
   // ---- 扉の発光FX ----
   const fx = new THREE.Group();
-  fx.position.set(0, 2.3, -6.86);
+  fx.position.set(0, 2.3, -12.86);
   const slit = new THREE.Mesh(new THREE.PlaneGeometry(.4, 4.6), M.add({ color: new THREE.Color(3, 2.4, 1.3), opacity: 0 }));
   fx.add(slit);
   const glow = sprite(TEX.bokeh, 0xffe6a8, .1, 0); fx.add(glow);
@@ -735,14 +867,21 @@ function buildRace() {
     g.add(box(.06, .05, 130, railMat, sx * 9.6, .45, 20));
     for (let z = -45; z <= 85; z += 4) g.add(box(.07, .85, .07, railMat, sx * 9.6, .42, z));
   }
+  // 発走ラインの白線（ゲートの少し先）
+  g.add(box(19.1, .012, .3, M.lamb({ color: 0xf4f8fb }), 0, .006, -2.6));
   // スタンド: 観客で埋まったスロープ（階段状にしない）
   const stand = new THREE.Group();
   const slope = new THREE.Mesh(new THREE.PlaneGeometry(220, 23), M.lamb({ map: TEX.crowdSlope }));
   slope.rotation.x = -Math.PI / 2 + .417;   // 手前 z≈-24,y≈1.1 → 奥 z≈-45,y≈10.4 へ登る斜面
   slope.position.set(0, 5.75, -34.5);
   stand.add(slope);
-  // 斜面の手前の腰壁
+  // 斜面の手前の腰壁 + 広告ボード帯
   stand.add(box(220, 1.15, .35, M.lamb({ color: 0x3c4a52 }), 0, .56, -23.9));
+  stand.add((() => {
+    const m = new THREE.Mesh(new THREE.PlaneGeometry(220, .92), M.lamb({ map: TEX.adboards }));
+    m.position.set(0, .6, -23.7);
+    return m;
+  })());
   // 貴賓席（窓の帯）と白い大屋根
   stand.add((() => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(224, 2.6), M.lamb({ map: TEX.suites }));
@@ -751,14 +890,32 @@ function buildRace() {
   })());
   const roof = box(230, .7, 26, M.lamb({ color: 0xe8edf2 }), 0, 12.5, -36);
   stand.add(roof);
-  // 屋根の裏は白く明るく（フライスルーで見上がる面）
+  // 鼻隠し（屋根前縁の白帯）と雨樋ライン
+  stand.add(box(230.4, .5, .3, M.lamb({ color: 0xf6f9fc }), 0, 12.35, -22.95));
+  stand.add(box(230.4, .09, .32, M.lamb({ color: 0x9aa8b4 }), 0, 12.06, -22.94));
+  // 屋根縁のペナント旗列（お祭り感 / 1枚の透過板）
+  stand.add((() => {
+    const m = new THREE.Mesh(
+      new THREE.PlaneGeometry(228, .85),
+      M.lamb({ map: TEX.pennants, transparent: true, side: THREE.DoubleSide })
+    );
+    m.position.set(0, 11.55, -22.9);
+    return m;
+  })());
+  // 屋根の裏は白く明るく（フライスルーで見上がる面）。ライト無視のbasicなので
+  // goldGate の暗転時だけ W.standRoofUnder を非表示にする（resetFx が戻す）
   stand.add((() => {
     const m = new THREE.Mesh(new THREE.PlaneGeometry(228, 25), M.basic({ color: 0xdfe7ee, fog: false }));
     m.rotation.x = Math.PI / 2;
     m.position.set(0, 12.1, -36);
+    W.standRoofUnder = m;
     return m;
   })());
-  for (let x = -100; x <= 100; x += 25) stand.add(box(.6, 12, .6, M.lamb({ color: 0xb9c2cc }), x, 6, -24));
+  // 屋根裏の梁（フライスルーで真っ平らに見えないように）
+  for (let x = -100; x <= 100; x += 25) {
+    stand.add(box(.34, .14, 24.6, M.lamb({ color: 0xc3ccd6 }), x, 11.98, -36));
+    stand.add(box(.6, 12, .6, M.lamb({ color: 0xb9c2cc }), x, 6, -24));
+  }
   // 背面壁は屋根の下に収める（空に白壁が見えないように）
   const back = box(230, 11.5, 1, M.lamb({ color: 0x6a7686 }), 0, 5.75, -47);
   stand.add(back);
@@ -829,15 +986,8 @@ function buildRace() {
       return piv;
     };
     const dl = mkDoor(-1), dr = mkDoor(1);
-    // SSRゲートの追加装飾
+    // SSRゲートの追加装飾（頭上アーチ・王冠は無し / 他ゲートと同じ天面にする）
     if (isSSR) {
-      const archT = new THREE.Mesh(new THREE.TorusGeometry(GW / 2, .07, 8, 24, Math.PI), gold);
-      archT.position.set(0, 2.75, .45);
-      one.add(archT);
-      const crown = new THREE.Mesh(new THREE.SphereGeometry(.13, 12, 8), gold);
-      crown.position.set(0, 3.55, .45);
-      one.add(crown);
-      one.add(box(.08, .7, .08, gold, 0, 3.15, .45));
       // 光柱
       const pillar = new THREE.Mesh(new THREE.PlaneGeometry(1.5, 14), M.add({ color: 0xffe18a, opacity: .0 }));
       pillar.position.set(0, 7, .3);
@@ -892,12 +1042,31 @@ function buildRace() {
   // 両端支柱（緑鉄骨）
   gates.add(box(.18, 4.5, .18, M.lamb({ color: 0x2a7a52 }), -7.25, 2.25, -.1));
   gates.add(box(.18, 4.5, .18, M.lamb({ color: 0x2a7a52 }), 7.25, 2.25, -.1));
+  // 両端のウイング柵（実物のスタートゲート脇の白い袖 / 手前に向けて開く）
+  // goldGate の暗転クローズアップでは変な影になるためグループごと隠せるようにする
+  const wingMat = M.lamb({ color: 0xeef2f6 });
+  const wings = new THREE.Group();
+  for (const sx of [-1, 1]) {
+    const wing = new THREE.Group();
+    wing.position.set(sx * 7.35, 0, .15);
+    wing.rotation.y = -sx * .5;
+    wing.add(box(1.9, .1, .07, wingMat, sx * .95, 1.68, 0));
+    wing.add(box(1.9, .1, .07, wingMat, sx * .95, 1.18, 0));
+    wing.add(box(.09, 1.75, .09, wingMat, sx * .28, .88, 0));
+    wing.add(box(.09, 1.75, .09, wingMat, sx * 1.62, .88, 0));
+    wings.add(wing);
+  }
+  gates.add(wings);
+  W.gateWings = wings;
   // ゲート足元の薄霧（参考13/195246）
+  const mist = new THREE.Group();
   for (let i = 0; i < 12; i++) {
     const s = sprite(TEX.bokeh, 0xffffff, rand(2.0, 3.2), .05);
     s.position.set(rand(-7, 7), .3, .9);
-    gates.add(s);
+    mist.add(s);
   }
+  gates.add(mist);
+  W.gateMist = mist;
   g.add(gates);
   W.gatesG = gates;
 
@@ -913,8 +1082,13 @@ function buildRace() {
   lampG.add(box(.1, .55, .1, greenM, 0, 2.75, .2));
   // 箱型パネル（マルーン枠 + LED面）
   lampG.add(box(.78, .78, .2, M.lamb({ color: 0x4a1410 }), 0, 2.45, .45));
-  // ランプ下に見えるゲート屋根の白い角（参考t19.5）
+  // ランプ下に見えるゲート屋根の白い角（参考t19.5）+ 支脚（宙に浮かせない）
   lampG.add(box(1.9, .09, 1.3, M.lamb({ color: 0xeef2f6 }), -.7, 1.88, .35));
+  const legM = M.lamb({ color: 0xd6dde3 });
+  lampG.add(box(.07, 1.84, .07, legM, -1.55, .92, .85));
+  lampG.add(box(.07, 1.84, .07, legM, .1, .92, .85));
+  lampG.add(box(.07, 1.84, .07, legM, -1.55, .92, -.12));
+  lampG.add(box(1.66, .08, .08, legM, -.72, 1.62, .85));
   W.lampMat = M.basic({ color: 0x2a0e0c, map: TEX.led, fog: false });
   const lampFace = new THREE.Mesh(new THREE.PlaneGeometry(.62, .62), W.lampMat);
   lampFace.position.set(0, 2.45, .56);
@@ -1081,7 +1255,7 @@ async function drawHagakiBack(data) {
     }
   }
   // 挨拶文パネル
-  const msg = (data.m ?? '').trim() || 'あけましておめでとうございます。';
+  const msg = (data.m ?? '').trim() || '新年 あけましておめでとうございます!';
   g.font = '500 27px "Noto Sans JP", sans-serif';
   const lines = wrapLines(g, msg, 380);
   const lh = 40, panelH = lines.length * lh + 48;
@@ -1283,23 +1457,45 @@ export async function buildFan3D() {
   // 手元の柄（握り）
   group.add(box(.034, .13, .022, ribMat, 0, -.085, 0));
 
-  // 手（掌 + 指4本 + 親指 + 袖）— デフォルメの3Dハンド
+  // 手（掌 + 屈曲2節の指×4 + 2節の親指 + 手首 + 袖）— 柄を「握っている」と読めるデフォルメ3Dハンド
   const skin = M.lamb({ color: 0xf6cfae, emissive: 0x40301e });
+  const skin2 = M.lamb({ color: 0xeec19e, emissive: 0x3a2b1a });
   const hand = new THREE.Group();
   const palm = new THREE.Mesh(new THREE.SphereGeometry(.075, 14, 12), skin);
-  palm.scale.set(1.05, .8, .62);
-  palm.position.set(.045, -.115, .015);
+  palm.scale.set(1.0, .92, .58);
+  palm.position.set(.05, -.1, .01);
   hand.add(palm);
+  // 4本指: 第1節（甲側から柄の前を横切る）→ ナックル → 第2節（巻き込み）
   for (let i = 0; i < 4; i++) {
-    const f = new THREE.Mesh(new THREE.CapsuleGeometry(.017, .05, 4, 8), skin);
-    f.position.set(-.012, -.055 - i * .036, .035);
-    f.rotation.z = Math.PI / 2 - .12;
-    hand.add(f);
+    const y = -.05 - i * .0335;
+    const r = .0175 - i * .0013;             // 人差し指→小指へ細く
+    const lenP = .05 - Math.abs(i - 1) * .006; // 中指がいちばん長い
+    const prox = new THREE.Mesh(new THREE.CapsuleGeometry(r, lenP, 4, 8), skin);
+    prox.position.set(.014, y, .034);
+    prox.rotation.z = Math.PI / 2 - .06;
+    hand.add(prox);
+    const knuckle = new THREE.Mesh(new THREE.SphereGeometry(r * 1.12, 8, 8), skin2);
+    knuckle.position.set(.014 - lenP / 2 - .007, y - .004, .033);
+    hand.add(knuckle);
+    const dist = new THREE.Mesh(new THREE.CapsuleGeometry(r * .88, .03, 4, 8), skin);
+    dist.position.set(.014 - lenP / 2 - .02, y - .014, .027);
+    dist.rotation.z = Math.PI / 2 - .95;
+    hand.add(dist);
   }
-  const thumb = new THREE.Mesh(new THREE.CapsuleGeometry(.019, .045, 4, 8), skin);
-  thumb.position.set(.02, -.05, .03);
-  thumb.rotation.z = .45;
-  hand.add(thumb);
+  // 親指は2節で親骨側を斜めに押さえる
+  const th1 = new THREE.Mesh(new THREE.CapsuleGeometry(.02, .04, 4, 8), skin);
+  th1.position.set(.052, -.052, .026);
+  th1.rotation.z = .55;
+  hand.add(th1);
+  const th2 = new THREE.Mesh(new THREE.CapsuleGeometry(.0165, .032, 4, 8), skin);
+  th2.position.set(.028, -.018, .031);
+  th2.rotation.z = 1.15;
+  hand.add(th2);
+  // 手首（袖口と掌をつなぐ）
+  const wrist = new THREE.Mesh(new THREE.SphereGeometry(.06, 12, 10), skin);
+  wrist.scale.set(1.0, .8, .6);
+  wrist.position.set(.11, -.18, .002);
+  hand.add(wrist);
   // 袖（濃紅の筒）と腕: 右下画面外へ伸びる
   const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(.085, .105, .34, 14), M.lamb({ color: 0x7a2430, emissive: 0x1c0508 }));
   sleeve.position.set(.22, -.32, .0);
@@ -1364,6 +1560,9 @@ export function resetFx() {
   W.doorInner.material.opacity = 0;
   W.gatesG.visible = true;
   if (W.standG) W.standG.visible = true;
+  if (W.gateMist) W.gateMist.visible = true;
+  if (W.gateWings) W.gateWings.visible = true;
+  if (W.standRoofUnder) W.standRoofUnder.visible = true;
   for (const go of W.gateObjs) {
     go.doors[0].rotation.y = 0; go.doors[1].rotation.y = 0;
     if (go.glow) go.glow.material.opacity = .85;

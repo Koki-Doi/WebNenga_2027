@@ -38,7 +38,7 @@ export function makePhases() {
     setEnv('corridor');
     showHagaki(false);
     SFX.whoosh(.4);
-    setCam(0, 1.6, 2.4, 0, 2.7, -7, 48);
+    setCam(0, 1.6, 2.4, 0, 2.7, -13, 48);
     const f = W.fan3d, fi = W.fan3dInner;
     f.visible = true;
     // 最終位置（視線中心の高さ）でカメラへ正対させてから、開始位置=画面下へ
@@ -71,10 +71,14 @@ export function makePhases() {
     SFX.whoosh(1.2);
     SFX.sparkle(.4, 1100);
     state.frame = (dt, t) => { flutter(t, 1); };
-    setCam(.55, 1.9, 4.4, 0, 1.66, -7, 48);
+    // ハガキ全体が余白付きで収まる引きから追い、加速に合わせて広角化+放射ブラーで疾走感を出す
+    // （ロング廊下26mを一気に駆け抜ける: 柱・燭台・ロープが高速で流れる）
+    setCam(.55, 1.9, 5.7, 0, 1.66, -13, 50);
+    tk.tw(cs(), { fov: 56, duration: 1.7, ease: 'power1.in' });
+    tk.tw(state, { radial: .06, duration: 1.7, ease: 'power1.in' });
     await Promise.all([
-      tk.tw(W.hagaki.position, { z: -5.4, duration: 2.0, ease: 'power1.in' }),
-      tk.tw(cs(), { px: .3, pz: 1.6, py: 1.95, duration: 2.0, ease: 'power1.inOut' }),
+      tk.tw(W.hagaki.position, { z: -11.4, duration: 1.7, ease: 'power1.in' }),
+      tk.tw(cs(), { px: .3, pz: -3.4, py: 1.95, duration: 1.7, ease: 'power1.inOut' }),
     ]);
   });
 
@@ -83,8 +87,9 @@ export function makePhases() {
     resetFx();
     setEnv('corridor');
     showHagaki(true);
-    W.hagaki.position.set(0, 1.75, -5.4);
-    setCam(0, 1.6, -2.6, 0, 2.35, -7, 50);
+    W.hagaki.position.set(0, 1.75, -11.4);
+    // 馬蹄扉のアーチまでフレームに収まる引き（主役はハガキでなく光る扉）
+    setCam(0, 1.55, -7.35, 0, 2.5, -13, 52);
     state.frame = (dt, t) => { flutter(t, .55); };
     // 馬蹄リングが発光（予兆）
     SFX.swell(1.4);
@@ -92,12 +97,12 @@ export function makePhases() {
     tk.tw(state, { bloom: .6, duration: .75 });
     await tk.wait(.75);
     if (tk.cancelled) return;
-    // 扉が開く！
+    // 扉が開く！（手前へ観音開き）
     const fx = W.doorFx;
     SFX.clang();
     SFX.whoosh(1.4, .1);
-    tk.tw(W.doorL.rotation, { y: 1.05, duration: 1.45, ease: 'power2.in' });
-    tk.tw(W.doorR.rotation, { y: -1.05, duration: 1.45, ease: 'power2.in' });
+    tk.tw(W.doorL.rotation, { y: -1.05, duration: 1.45, ease: 'power2.in' });
+    tk.tw(W.doorR.rotation, { y: 1.05, duration: 1.45, ease: 'power2.in' });
     tk.tw(W.doorShoe.material, { opacity: 0, duration: .7, delay: .35 });
     tk.tw(W.doorInner.material, { opacity: .8, duration: 1.05, ease: 'power2.in' });
     fx.slit.material.opacity = 1;
@@ -108,10 +113,10 @@ export function makePhases() {
     tk.tw(fx.ring.scale, { x: 7.5, y: 7.5, z: 7.5, duration: .9, ease: 'power2.in', delay: .55 });
     tk.tw(state, { bloom: .72, duration: 1.35, ease: 'power2.in' });
     tk.tw(state, { shake: .014, duration: 1.2 });
-    // ハガキは光へ吸い込まれる
-    tk.tw(W.hagaki.position, { z: -6.8, y: 1.9, duration: 1.3, ease: 'power2.in' });
-    tk.tw(W.hagaki.scale, { x: .82, y: .82, z: .82, duration: 1.3, ease: 'power2.in' });
-    tk.tw(cs(), { pz: -3.3, ly: 2.6, duration: 1.3, ease: 'power1.in' });
+    // ハガキは光へ吸い込まれる（手前開きの扉が十分開いてから隙間を抜ける）
+    tk.tw(W.hagaki.position, { z: -12.4, y: 1.9, duration: .5, delay: 1.0, ease: 'power2.in' });
+    tk.tw(W.hagaki.scale, { x: .82, y: .82, z: .82, duration: .5, delay: 1.0, ease: 'power2.in' });
+    tk.tw(cs(), { pz: -8.5, ly: 2.65, duration: 1.3, ease: 'power1.in' });
     await tk.wait(1.2);
     if (tk.cancelled) return;
     SFX.sparkle(0, 1900);
@@ -136,7 +141,7 @@ export function makePhases() {
     SFX.sparkle(.3, 1100);
     const pr = { x: -30 };
     state.frame = () => {
-      setCam(pr.x, 6.7, -30.2, pr.x + 9, 5.4, -36.5, 58, .02);
+      setCam(pr.x, 7.6, -29.6, pr.x + 9, 6.1, -36.5, 60, .02);
     };
     await tk.tw(pr, { x: 26, duration: 1.6, ease: 'power1.inOut' });
   });
@@ -156,7 +161,7 @@ export function makePhases() {
     for (const p of W.penlights) p.set(true);   // 観客席のペンライトは点けたまま
     setCam(-22, 4.4, -10, 25, 1.9, -15, 54);
     await Promise.all([
-      tk.tw(cs(), { px: 0, py: 1.8, pz: 12.5, duration: 1.9, ease: 'power1.inOut' }),
+      tk.tw(cs(), { px: 0, py: 2.0, pz: 13.5, duration: 1.9, ease: 'power1.inOut' }),
       tk.tw(cs(), { lx: 0, ly: 2.3, lz: -5, duration: 1.9, ease: 'power1.inOut' }),
       tk.tw(state, { bloom: 1.15, duration: 1.9, ease: 'power3.in' }),
     ]);
@@ -178,14 +183,15 @@ export function makePhases() {
     W.confetti.place({ x: 0, y: 6, z: 6 }, { x: 16, y: 7, z: 12 });
     W.confetti.set(true);
     W.sparkles.set(true);
-    setCam(0, 3.5, 25, 0, 1.9, -5, 50);
+    // 9:16 では横画角が狭い: 全ゲート幅14.8が押し込み終端でも収まる距離を保つ
+    setCam(0, 3.8, 28, 0, 1.9, -5, 50);
     SFX.fanfare(.1);
     state.frame = (dt, t) => {
       for (const go of W.gateObjs) {
         if (go.glow) go.glow.material.opacity = go.isSSR ? .3 + Math.sin(t * 4) * .1 : .6 + Math.sin(t * 4 + go.x) * .3;
       }
     };
-    await tk.tw(cs(), { pz: 20, py: 2.85, duration: 1.7, ease: 'power1.inOut' });
+    await tk.tw(cs(), { pz: 24, py: 3.0, duration: 1.7, ease: 'power1.inOut' });
   });
 
   // ---- 7. ゲート横舐めパン（右の1番=金 → 左の10番=虹で金バースト） ----
@@ -203,7 +209,8 @@ export function makePhases() {
     const srDone = SR_XS.map(() => false);
     let ssrDone = false;
     state.frame = (dt, t) => {
-      setCam(pr.x, 1.25, -1.3, pr.x - 1.6, 1.95, -4.6, 46, .035);
+      // 扉+番号プレートが1房まるごと入る距離で横パン（格子のドアップにしない）
+      setCam(pr.x, 1.45, -.1, pr.x - 1.6, 2.1, -4.6, 50, .035);
       for (const go of W.gateObjs) {
         if (go.glow) go.glow.material.opacity = go.isSSR ? .3 + Math.sin(t * 5) * .1 : .65 + Math.sin(t * 5 + go.x * 2) * .3;
       }
@@ -237,7 +244,8 @@ export function makePhases() {
     for (const p of W.penlights) p.set(true);
     state.bloom = .45;
     const L = W.lampPos;
-    setCam(L.x - .85, L.y - .6, L.z + 2.4, L.x, L.y, L.z - .6, 36);
+    // ランプ盤(0.78角)が支柱・トラスごと収まる距離（縦画面は横が狭いので広めに）
+    setCam(L.x - 1.15, L.y - .7, L.z + 3.3, L.x, L.y, L.z - .6, 40);
     SFX.tone(70, .5, 'sine', .35);
     await tk.wait(.6);
     if (tk.cancelled) return;
@@ -248,7 +256,7 @@ export function makePhases() {
     SFX.clang();
     SFX.ding(.04);
     await Promise.all([
-      tk.tw(cs(), { fov: 32, duration: .12, ease: 'power3.out' }),
+      tk.tw(cs(), { fov: 36, duration: .12, ease: 'power3.out' }),
       tk.tw(state, { shake: .012, duration: .1 }),
     ]);
     tk.tw(state, { shake: 0, duration: .4 });
@@ -265,12 +273,17 @@ export function makePhases() {
     // ゲート房の内側（格子扉 z-4.5 の奥）に立たせる。出走前なので回転はさせない
     W.hagaki.position.set(SSR_X, 1.3, -5.0);
     W.hagaki.rotation.set(0, 0, 0);
+    // 暗転クローズアップでは足元ミスト・端のウイング柵・ライト無視で白く光る屋根裏が
+    // 変な影/まだら/白帯に見えるため隠す（resetFx が戻す）
+    W.gateMist.visible = false;
+    W.gateWings.visible = false;
+    W.standRoofUnder.visible = false;
     // 色は linear 空間: 0.05 でも sRGB では 26% グレーに見えるため大きく絞る
     setHagakiSilhouette(true, .008);
     W.key.intensity = 0;
     W.amb.intensity = .035;
     state.bloom = .38;
-    setCam(SSR_X, 1.1, -.1, SSR_X, 1.3, -4.5, 44);
+    setCam(SSR_X, 1.15, .5, SSR_X, 1.5, -4.5, 46);
     SFX.swell(1.6);
     const go = W.gateObjs.find((o) => o.isSSR);
     state.frame = (dt, t) => {
@@ -283,7 +296,7 @@ export function makePhases() {
     // 縦画面は水平画角が狭い（垂直spanの9/16）ため、幅1.0のハガキが
     // 収まる距離+広めのfovで止める（近づきすぎると左右が見切れる）
     await Promise.all([
-      tk.tw(cs(), { pz: -1.0, fov: 42, duration: 1.4, ease: 'power2.inOut' }),
+      tk.tw(cs(), { pz: -.55, ly: 1.38, fov: 42, duration: 1.4, ease: 'power2.inOut' }),
       tk.tw(state, { bloom: .5, duration: 1.4 }),
     ]);
   });
@@ -299,10 +312,11 @@ export function makePhases() {
     const go = W.gateObjs.find((o) => o.isSSR);
     SFX.clang();
     SFX.thud(.05);
+    // ゲート扉の開閉は90°まで（実物と同じ直角ストップ）
     for (const o of W.gateObjs) {
       const d = o === go ? 0 : .05;
-      tk.tw(o.doors[0].rotation, { y: -2.4, duration: .28, ease: 'power3.out', delay: d });
-      tk.tw(o.doors[1].rotation, { y: 2.4, duration: .28, ease: 'power3.out', delay: d });
+      tk.tw(o.doors[0].rotation, { y: -Math.PI / 2, duration: .28, ease: 'power3.out', delay: d });
+      tk.tw(o.doors[1].rotation, { y: Math.PI / 2, duration: .28, ease: 'power3.out', delay: d });
     }
     UI.flash(.1, .35);
     // 白いハガキは残像が蓄積しやすいので露出は控えめに
@@ -311,6 +325,12 @@ export function makePhases() {
     state.bloom = .42;
     SFX.gallop();
     SFX.whoosh(1.2, .2);
+    // 沿道を流れる紙吹雪（手前を高速で通過して速度感を出す / カメラ軸は外してレンズ直撃を避ける）
+    W.confetti.place({ x: SSR_X - 1.5, y: 2.5, z: 5 }, { x: 5.5, y: 3, z: 24 });
+    W.confetti.set(true);
+    // 加速に合わせて広角化+引き+放射ブラー強化（寄りで詰めず、流れる背景で疾走感を出す）
+    const spd = { fov: 50, back: 3.0, rad: .045 };
+    tk.tw(spd, { fov: 60, back: 3.7, rad: .085, duration: 1.9, ease: 'power2.in' });
     state.frame = (dt, t) => {
       const z = W.hagaki.position.z;
       // 振り向きに見えるヨー回転はせず、疾走の煽り揺れのみ
@@ -319,10 +339,10 @@ export function makePhases() {
       // 出走直後のローアングル追走ワンカットで最後まで通す
       // （似たアングルの切り替えを挟むと同じカットが2回に見えるため）
       setCam(
-        SSR_X + 1.1 + Math.sin(t * 31) * .03, .65 + Math.sin(t * 41) * .02, z + 2.6,
-        SSR_X - .15, 1.05, z - .5, 48
+        SSR_X + 1.3 + Math.sin(t * 31) * .04, .55 + Math.sin(t * 41) * .03, z + spd.back,
+        SSR_X - .3, 1.15, z - 1.2, spd.fov
       );
-      state.radial = .04;
+      state.radial = spd.rad;
       state.bloom = .4;
     };
     await tk.tw(W.hagaki.position, { z: 13, duration: 1.9, ease: 'power2.in' });
@@ -366,7 +386,7 @@ export function makePhases() {
     W.revealSunCross.material.opacity = .26;
     // ハガキ全体（高さ1.48）が名前帯の上に収まる距離で止める。
     // 視線をやや下(1.2)に置いてカードを画面上寄りに配置
-    setCam(0, 1.3, 3.15, 0, 1.2, 0, 38);
+    setCam(0, 1.3, 3.4, 0, 1.2, 0, 38);
     SFX.fanfare();
     UI.showRevealLabels(tk);
     state.frame = (dt, t) => {
@@ -374,7 +394,7 @@ export function makePhases() {
       W.hagakiPivot.rotation.z = Math.sin(t * .9) * .02;
       W.hagakiPivot.rotation.y = Math.sin(t * 1.1) * .05;
     };
-    tk.tw(cs(), { pz: 2.8, duration: 3.0, ease: 'power1.out' });
+    tk.tw(cs(), { pz: 3.0, duration: 3.0, ease: 'power1.out' });
     // タップで実物の年賀状へ（長めの保険タイムアウト付き）
     await Promise.race([tk.tap(), tk.wait(30)]);
     if (tk.cancelled) return;

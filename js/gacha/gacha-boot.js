@@ -21,6 +21,20 @@ function getCardData() {
   return obj;
 }
 
+// ---------- ロード中インジケータ ----------
+// エンジン（three/gsap+ワールド構築）の遅延ロード中に出す。CSS側の遅延フェードインにより
+// 先読み済みで即開演できる場合は視認されない。
+function showLoading() {
+  if (document.getElementById('gc-loading')) return;
+  const el = document.createElement('div');
+  el.id = 'gc-loading';
+  el.innerHTML = '<div class="gc-load-box"><i class="gc-load-spin"></i><span>ロード中…</span></div>';
+  document.body.appendChild(el);
+}
+function hideLoading() {
+  document.getElementById('gc-loading')?.remove();
+}
+
 // ---------- オーバーレイ DOM ----------
 function buildOverlay() {
   const root = document.createElement('div');
@@ -283,11 +297,14 @@ window.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
     started = true;
     container.removeEventListener('click', intercept, true);
+    showLoading();
     try {
       const eng = await ensureEngine(data);
       window.__gacha = eng;                     // デバッグ/検証用フック
+      hideLoading();
       await eng.play();
     } catch (err) {
+      hideLoading();
       console.error('gacha failed, falling back to flip', err);
     }
     flipToBack();

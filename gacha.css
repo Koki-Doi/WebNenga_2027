@@ -185,3 +185,25 @@
   backdrop-filter: blur(4px);
   box-shadow: inset 0 0 0 1.5px rgba(255, 255, 255, .45);
 }
+
+/* ---- ロード中インジケータ（エンジン遅延ロード中に表示 / 即ロード時は出ない遅延フェードイン） ---- */
+#gc-loading {
+  position: fixed; inset: 0; z-index: 1990;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(14, 5, 9, .74);
+  opacity: 0;
+  animation: gcLoadIn .35s ease .15s forwards;
+}
+.gc-load-box {
+  display: flex; flex-direction: column; align-items: center; gap: 14px;
+  color: #fff; font-weight: 800; font-size: 15px; letter-spacing: .14em;
+  text-shadow: 0 1px 6px rgba(0, 0, 0, .6);
+}
+.gc-load-spin {
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 4px solid rgba(255, 255, 255, .22);
+  border-top-color: #ffd35e;
+  animation: gcSpin .8s linear infinite;
+}
+@keyframes gcSpin { to { transform: rotate(360deg); } }
+@keyframes gcLoadIn { to { opacity: 1; } }
