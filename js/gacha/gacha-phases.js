@@ -36,6 +36,7 @@ export function makePhases() {
   P('fan', async (tk) => {
     resetFx();
     setEnv('corridor');
+    state.bloom = 0;
     showHagaki(false);
     SFX.whoosh(.4);
     setCam(0, 1.6, 2.4, 0, 2.7, -13, 48);
@@ -64,6 +65,7 @@ export function makePhases() {
   P('dash', async (tk) => {
     resetFx();
     setEnv('corridor');
+    state.bloom = .18;
     showHagaki(true);
     // 視線(ly)とほぼ同じ高さに置き、フレーム下端で切れないようにする
     W.hagaki.position.set(0, 1.62, 1.2);
@@ -93,8 +95,8 @@ export function makePhases() {
     state.frame = (dt, t) => { flutter(t, .55); };
     // 馬蹄リングが発光（予兆）
     SFX.swell(1.4);
-    tk.tw(W.doorShoe.material, { opacity: .95, duration: .75, ease: 'power2.in' });
-    tk.tw(state, { bloom: .6, duration: .75 });
+    tk.tw(W.doorShoe.material, { opacity: .5, duration: .75, ease: 'power2.in' });
+    tk.tw(state, { bloom: .38, duration: .75 });
     await tk.wait(.75);
     if (tk.cancelled) return;
     // 扉が開く！（手前へ観音開き）
@@ -111,7 +113,7 @@ export function makePhases() {
     tk.tw(fx.glow.scale, { x: 4.0, y: 4.0, z: 4.0, duration: 1.45, ease: 'power3.in' });
     tk.tw(fx.ring.material, { opacity: .55, duration: .7, delay: .55 });
     tk.tw(fx.ring.scale, { x: 7.5, y: 7.5, z: 7.5, duration: .9, ease: 'power2.in', delay: .55 });
-    tk.tw(state, { bloom: .72, duration: 1.35, ease: 'power2.in' });
+    tk.tw(state, { bloom: .52, duration: 1.35, ease: 'power2.in' });
     tk.tw(state, { shake: .014, duration: 1.2 });
     // ハガキは光へ吸い込まれる（手前開きの扉が十分開いてから隙間を抜ける）
     tk.tw(W.hagaki.position, { z: -12.4, y: 1.9, duration: .5, delay: 1.0, ease: 'power2.in' });
@@ -139,11 +141,12 @@ export function makePhases() {
     state.bloom = .68;
     SFX.whoosh(1.4);
     SFX.sparkle(.3, 1100);
-    const pr = { x: -30 };
+    const pr = { x: -38 };
     state.frame = () => {
-      setCam(pr.x, 7.6, -29.6, pr.x + 9, 6.1, -36.5, 60, .02);
+      // 芝側から三層スタンドを斜めに見上げ、白い庇の水平線をすべて画面に残す。
+      setCam(pr.x, 3.45, -13.6, pr.x + 26, 7.65, -36.8, 57, .018);
     };
-    await tk.tw(pr, { x: 26, duration: 1.6, ease: 'power1.inOut' });
+    await tk.tw(pr, { x: 28, duration: 1.75, ease: 'power1.inOut' });
   });
 
   // ---- 4. 芝生レベルへ降りてゲートへ接近（白く飛ぶ） ----
@@ -177,9 +180,11 @@ export function makePhases() {
   P('gateWide', async (tk) => {
     resetFx();
     setEnv('race');
+    W.raceRails.visible = false;
+    W.lampG.visible = false;
     showHagaki(false);
     for (const p of W.penlights) p.set(true);
-    state.bloom = .55;
+    state.bloom = .42;
     W.confetti.place({ x: 0, y: 6, z: 6 }, { x: 16, y: 7, z: 12 });
     W.confetti.set(true);
     W.sparkles.set(true);
@@ -188,7 +193,9 @@ export function makePhases() {
     SFX.fanfare(.1);
     state.frame = (dt, t) => {
       for (const go of W.gateObjs) {
-        if (go.glow) go.glow.material.opacity = go.isSSR ? .3 + Math.sin(t * 4) * .1 : .6 + Math.sin(t * 4 + go.x) * .3;
+        if (go.glow) go.glow.material.opacity = go.isSSR
+          ? .42 + Math.sin(t * 4) * .07
+          : .28 + Math.sin(t * 4 + go.x) * .08;
       }
     };
     await tk.tw(cs(), { pz: 24, py: 3.0, duration: 1.7, ease: 'power1.inOut' });
@@ -199,9 +206,11 @@ export function makePhases() {
     resetFx();
     setSil(false);
     setEnv('race');
+    W.raceRails.visible = false;
+    W.lampG.visible = false;
     showHagaki(false);
     for (const p of W.penlights) p.set(true);
-    state.bloom = .42;
+    state.bloom = .34;
     W.confetti.place({ x: 0, y: 6, z: 6 }, { x: 16, y: 7, z: 12 });
     W.confetti.set(true);
     W.sparkles.set(true);
@@ -212,7 +221,9 @@ export function makePhases() {
       // 扉+番号プレートが1房まるごと入る距離で横パン（格子のドアップにしない）
       setCam(pr.x, 1.45, -.1, pr.x - 1.6, 2.1, -4.6, 50, .035);
       for (const go of W.gateObjs) {
-        if (go.glow) go.glow.material.opacity = go.isSSR ? .3 + Math.sin(t * 5) * .1 : .65 + Math.sin(t * 5 + go.x * 2) * .3;
+        if (go.glow) go.glow.material.opacity = go.isSSR
+          ? .44 + Math.sin(t * 5) * .08
+          : .28 + Math.sin(t * 5 + go.x * 2) * .08;
       }
       if (W.ssrPillar) W.ssrPillar.material.opacity = .08 + Math.sin(t * 3) * .04;
       if (W.ssrSheen) W.ssrSheen.material.opacity = .1 + Math.sin(t * 2.6) * .05;
@@ -222,7 +233,7 @@ export function makePhases() {
       if (!ssrDone && pr.x < SSR_X + 1.7) {
         ssrDone = true;
         SFX.swell(.9); SFX.sparkle(.3, 700);
-        state.bloom = .52;
+        state.bloom = .45;
         if (W.ssrBurst) {
           W.ssrBurst.material.opacity = .65;
           gsap.to(W.ssrBurst.scale, { x: 5.5, y: 5.5, z: 5.5, duration: .8, ease: 'power2.out' });
@@ -240,6 +251,7 @@ export function makePhases() {
   P('lamp', async (tk) => {
     resetFx();
     setEnv('race');
+    W.raceRails.visible = false;
     showHagaki(false);
     for (const p of W.penlights) p.set(true);
     state.bloom = .45;
@@ -268,6 +280,8 @@ export function makePhases() {
   P('goldGate', async (tk) => {
     resetFx();
     setEnv('race');
+    W.raceRails.visible = false;
+    W.lampG.visible = false;
     showHagaki(true);
     for (const p of W.penlights) p.set(true);
     // ゲート房の内側（格子扉 z-4.5 の奥）に立たせる。出走前なので回転はさせない
@@ -282,13 +296,13 @@ export function makePhases() {
     setHagakiSilhouette(true, .008);
     W.key.intensity = 0;
     W.amb.intensity = .035;
-    state.bloom = .38;
+    state.bloom = .3;
     setCam(SSR_X, 1.15, .5, SSR_X, 1.5, -4.5, 46);
     SFX.swell(1.6);
     const go = W.gateObjs.find((o) => o.isSSR);
     state.frame = (dt, t) => {
-      const p = .36 + Math.sin(t * 5.2) * .12;
-      if (go.glow) { go.glow.material.opacity = p; go.glow.scale.setScalar(3.4 + Math.sin(t * 5.2) * .4); }
+      const p = .36 + Math.sin(t * 5.2) * .07;
+      if (go.glow) { go.glow.material.opacity = p; go.glow.scale.setScalar(4 + Math.sin(t * 5.2) * .25); }
       if (W.ssrSheen) W.ssrSheen.material.opacity = .1 + Math.sin(t * 3.4) * .06;
       // 静かに佇む影（呼吸程度の傾きのみ）
       W.hagakiPivot.rotation.z = Math.sin(t * 2.2) * .03;
@@ -297,7 +311,7 @@ export function makePhases() {
     // 収まる距離+広めのfovで止める（近づきすぎると左右が見切れる）
     await Promise.all([
       tk.tw(cs(), { pz: -.55, ly: 1.38, fov: 42, duration: 1.4, ease: 'power2.inOut' }),
-      tk.tw(state, { bloom: .5, duration: 1.4 }),
+      tk.tw(state, { bloom: .42, duration: 1.4 }),
     ]);
   });
 
@@ -305,7 +319,14 @@ export function makePhases() {
   P('run', async (tk) => {
     resetFx();
     setEnv('race');
+    W.raceRails.visible = false;
+    W.lampG.visible = false;
     showHagaki(true);
+    // 発走する実カードと重ならないよう、待機用の影は開扉直前に消す。
+    for (const o of W.gateObjs) {
+      if (o.shadow) o.shadow.visible = false;
+      if (o.shadowGlow) o.shadowGlow.visible = false;
+    }
     for (const p of W.penlights) p.set(true);
     // ゲート房の内側から発走する（扉が開くのと同時に飛び出す）
     W.hagaki.position.set(SSR_X, 1.25, -5.0);
@@ -360,9 +381,9 @@ export function makePhases() {
     for (const line of GACHA.speechLines) {
       if (tk.cancelled) break;
       SFX.sparkle(.05, 1400);
-      await UI.typeSpeech(line, tk);
+      await UI.animateSpeech(line, tk);
       if (tk.cancelled) break;
-      await Promise.race([tk.tap(), tk.wait(1.3)]);
+      await Promise.race([tk.tap(), tk.wait(3.0)]);
     }
     if (tk.cancelled) return;
     UI.hideSpeech();
@@ -372,6 +393,9 @@ export function makePhases() {
   P('reveal', async (tk) => {
     resetFx();
     setEnv('reveal');
+    // 最終結果は実カードの色を優先し、演出用の彩度・暖色・ビネット補正を外す。
+    W.renderer.toneMappingExposure = 1;
+    W.gradePass.uniforms.grade.value = 0;
     W.revealBgPastel.visible = false;
     W.revealBgSky.visible = true;
     showHagaki(true);
@@ -380,20 +404,17 @@ export function makePhases() {
     W.hagaki.position.set(0, 1.32, 0);
     W.hagaki.rotation.set(0, Math.PI, 0);
     // 白地の年賀状が主役なので露出は絞る
-    state.bloom = .33;
+    state.bloom = .04;
     W.revealSpark.set(true);
-    W.revealSun.material.opacity = .42;
-    W.revealSunCross.material.opacity = .26;
+    W.revealSun.material.opacity = .18;
+    W.revealSunCross.material.opacity = .1;
     // ハガキ全体（高さ1.48）が名前帯の上に収まる距離で止める。
     // 視線をやや下(1.2)に置いてカードを画面上寄りに配置
     setCam(0, 1.3, 3.4, 0, 1.2, 0, 38);
     SFX.fanfare();
     UI.showRevealLabels(tk);
-    state.frame = (dt, t) => {
-      W.hagaki.position.y = 1.32 + Math.sin(t * 1.4) * .02;
-      W.hagakiPivot.rotation.z = Math.sin(t * .9) * .02;
-      W.hagakiPivot.rotation.y = Math.sin(t * 1.1) * .05;
-    };
+    // 最終カードは静止させ、細線テクスチャの時間方向エイリアシングを防ぐ。
+    state.frame = null;
     tk.tw(cs(), { pz: 3.0, duration: 3.0, ease: 'power1.out' });
     // タップで実物の年賀状へ（長めの保険タイムアウト付き）
     await Promise.race([tk.tap(), tk.wait(30)]);
